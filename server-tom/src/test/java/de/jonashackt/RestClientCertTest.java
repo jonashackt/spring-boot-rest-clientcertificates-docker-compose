@@ -1,6 +1,6 @@
-package de.jonashackt.restexamples;
+package de.jonashackt;
 
-import de.jonashackt.restexamples.controller.ServerTomController;
+import de.jonashackt.controller.ServerTomController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

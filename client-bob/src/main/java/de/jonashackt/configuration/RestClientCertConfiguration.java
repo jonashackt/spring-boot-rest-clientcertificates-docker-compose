@@ -1,4 +1,4 @@
-package de.jonashackt.restexamples;
+package de.jonashackt.configuration;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -13,17 +13,17 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 
 @Configuration
-public class RestClientCertTestConfiguration {
+public class RestClientCertConfiguration {
 
-    private char[] alicePassword = "alicepassword".toCharArray();
+    private char[] allPassword = "allpassword".toCharArray();
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) throws Exception {
 
         SSLContext sslContext = SSLContextBuilder
                 .create()
-                .loadKeyMaterial(ResourceUtils.getFile("classpath:alice-keystore.p12"), alicePassword, alicePassword)
-                .loadTrustMaterial(ResourceUtils.getFile("classpath:alice-truststore.jks"), alicePassword)
+                .loadKeyMaterial(ResourceUtils.getFile("classpath:keystore.jks"), allPassword, allPassword)
+                .loadTrustMaterial(ResourceUtils.getFile("classpath:truststore.jks"), allPassword)
                 .build();
 
         HttpClient client = HttpClients.custom()

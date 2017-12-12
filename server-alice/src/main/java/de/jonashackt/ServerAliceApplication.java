@@ -1,13 +1,12 @@
-package de.jonashackt.restexamples;
+package de.jonashackt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
-public class ServerApplication {
+public class ServerAliceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ServerApplication.class, args);
+        SpringApplication.run(ServerAliceApplication.class, args);
     }
 }

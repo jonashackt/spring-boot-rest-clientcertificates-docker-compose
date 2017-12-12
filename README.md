@@ -25,7 +25,7 @@ Therefore we use several Spring Boot based microservices that provide different 
 
 For a general approach on how to generate private keys and certificates and create Java Keystores, have a look into https://github.com/jonashackt/spring-boot-rest-clientcertificate#generate-the-usual-key-and-crt---and-import-them-into-needed-keystore-jks-files
 
-## server-alice client certificate & truststore (see /server-alice/src/main/resources)
+## server-alice keys and client certificate, truststore & keystore (see /server-alice/src/main/resources)
 
 #### 1. Private Key: aliceprivate.key
 
@@ -71,7 +71,7 @@ __the same password__ `alicepassword`
 
 
 
-## server-tom client certificate & truststore (see /server-tom/src/main/resources)
+## server-tom keys and client certificate, truststore & keystore (see /server-tom/src/main/resources)
 
 #### 1. Private Key: tomprivate.key
 
@@ -107,7 +107,7 @@ keytool -import -file tom.crt -alias tomsCA -keystore tom-truststore.jks
 __the same password__ `tompassword`
 
 
-#### #### 5. Java Keystore, that inherits Public and Private Keys (keypair): tom-keystore.p12
+#### 5. Java Keystore, that inherits Public and Private Keys (keypair): tom-keystore.p12
 
 ```
 openssl pkcs12 -export -in tom.crt -inkey tomprivate.key -certfile tom.crt -name "tomcert" -out tom-keystore.p12

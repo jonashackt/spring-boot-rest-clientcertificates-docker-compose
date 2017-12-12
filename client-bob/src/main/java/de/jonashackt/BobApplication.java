@@ -1,12 +1,12 @@
-package de.jonashackt.restexamples;
+package de.jonashackt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ServerAliceApplication {
+public class BobApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ServerAliceApplication.class, args);
+        SpringApplication.run(BobApplication.class, args);
     }
 }

@@ -1,0 +1,23 @@
+version: '3.3'
+
+services:
+
+ server-alice:
+  build: ./server-alice
+  ports:
+   - "8443"
+  tty:
+    true
+  restart:
+    unless-stopped
+
+ server-tom:
+  build: ./server-tom
+  ports:
+   - "8443"
+  environment:
+    - REGISTRY_HOST=eureka-serviceregistry
+  tty:
+    true
+  restart:
+    unless-stopped
