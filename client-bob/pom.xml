@@ -26,12 +26,6 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-        <!-- we need this here for server certificate handling -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
 		<!-- we need httpclient here for client certificate handling -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
