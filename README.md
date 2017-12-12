@@ -128,12 +128,36 @@ keytool -import -file tom.crt -alias tomsCA -keystore client-truststore.jks
 
 __password__ `bobpassword`
 
+In KeyStore Explorer this should look like this:
 
-#### 2. Java Keystore, that inherits Public and Private Keys (keypair): server-tom-keystore.p12
+![client-truststore](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-truststore.png)
+
+
+#### 2. Java Keystore, that inherits Public and Private Keys (keypair): client-keystore.p12
+
+Openssl CLI sadly doesn´t support importing multiple certificate files... But we can [concatenate them](https://serverfault.com/a/483490/326340):
 
 ```
-openssl pkcs12 -export -in tom.crt -inkey tomprivate.key -certfile tom.crt -name "tomcert" -out server-tom-keystore.p12
+cat alice.crt tom.crt > allcerts.pem
+cat aliceprivate.key tomprivate.key > allkeys.pem
 ```
 
-__the same password__ `tompassword`
+Then we can do:
+
+```
+openssl pkcs12 -export -in allcerts.pem -inkey allkeys.pem -certfile allcerts.pem -name "alicecert" -out client-keystore.p12
+```
+
+__the same password__ `bobpassword`
+
+If you want to check everything worked fine in KeyStoreExplorer, you have to convert the `.p12` file into a `.jks`, otherwise the tool will bring up a nasty exception:
+
+```
+keytool -importkeystore -srckeystore client-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
+```
+
+The result should look like this:
+
+![client-keystore](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-keystore.png)
+
 

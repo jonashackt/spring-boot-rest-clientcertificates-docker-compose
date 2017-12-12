@@ -23,9 +23,3 @@ target
 
 # logback
 logback.out.xml
-
-# certificate stuff
-*.key
-*.csr
-*.crt
-*.p12

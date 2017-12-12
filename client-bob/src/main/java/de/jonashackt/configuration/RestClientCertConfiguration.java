@@ -22,8 +22,8 @@ public class RestClientCertConfiguration {
 
         SSLContext sslContext = SSLContextBuilder
                 .create()
-                .loadKeyMaterial(ResourceUtils.getFile("classpath:keystore.jks"), allPassword, allPassword)
-                .loadTrustMaterial(ResourceUtils.getFile("classpath:truststore.jks"), allPassword)
+                .loadKeyMaterial(ResourceUtils.getFile("classpath:client-keystore.p12"), allPassword, allPassword)
+                .loadTrustMaterial(ResourceUtils.getFile("classpath:client-truststore.jks"), allPassword)
                 .build();
 
         HttpClient client = HttpClients.custom()
