@@ -1,6 +1,6 @@
 REST Client uses clientcertificate to authenticate to Spring Boot Server
 =============================
-[![Build Status](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificate.svg?branch=master)](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificate)
+[![Build Status](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose.svg?branch=master)](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose)
 
 This repository basically forks all the ground work that was done in https://github.com/jonashackt/spring-boot-rest-clientcertificate. This is a basic example, where the client certificate secured server is a Spring Boot Application and the client is just a Testcase that uses Spring´s RestTemplate which is configured to use the client certificate.
 
@@ -98,7 +98,7 @@ openssl genrsa -des3 -out tomprivate.key 1024
 #### 2. Certificate Signing Request (CSR): tom.csr
 
 ```
-openssl req -new -key tomprivate.key -out tom.csr
+openssl req -new -key tomprivate.key -out tom.csr -config tom-csr.conf
 ```
 
 __Common Name__: `server-tom`, which will later be a DNS alias inside the Docker network 
@@ -107,7 +107,7 @@ __Common Name__: `server-tom`, which will later be a DNS alias inside the Docker
 #### 3. self-signed Certificate: tom.crt
 
 ```
-openssl x509 -req -days 3650 -in tom.csr -signkey tomprivate.key -out tom.crt
+openssl x509 -req -days 3650 -in tom.csr -signkey tomprivate.key -out tom.crt -extfile tom-csr.conf -extensions v3_req
 ```
 
 
@@ -185,5 +185,7 @@ https://www.thomas-krenn.com/de/wiki/Openssl_Multi-Domain_CSR_erstellen
 https://stackoverflow.com/questions/30977264/subject-alternative-name-not-present-in-certificate
 
 https://stackoverflow.com/questions/21488845/how-can-i-generate-a-self-signed-certificate-with-subjectaltname-using-openssl
+
+--> this is not the only solution, see `-extfile` and `-extensions` CLI paramters!
 
 https://serverfault.com/questions/779475/openssl-add-subject-alternate-name-san-when-signing-with-ca

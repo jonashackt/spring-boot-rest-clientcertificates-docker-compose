@@ -25,7 +25,6 @@ public class RestClientCertTest {
 	@Autowired
     private RestTemplate restTemplate;
 
-	@Ignore("currently not running, because the certificate isn´t issued for 'localhost'")
 	@Test
 	public void is_hello_resource_callable_with_client_cert() {
 		String response = restTemplate.getForObject("https://localhost:" + port + "/hello", String.class);
