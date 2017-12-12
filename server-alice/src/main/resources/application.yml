@@ -1,0 +1,11 @@
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:alice-keystore.p12
+    key-store-password: alicepassword
+    trust-store: classpath:alice-truststore.jks
+    trust-store-password: alicepassword
+    client-auth: need
+security:
+  headers:
+    hsts: NONE

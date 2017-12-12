@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.jonashackt</groupId>
+	<artifactId>spring-boot-rest-clientcertificates-docker-compose</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<description>Example project showing how to access REST endpoints from multiple servers that are secured by different client certificates with Spring´s RestTemplate</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+    <properties>
+        <main.basedir>${project.basedir}</main.basedir>
+    </properties>
+	
+	<modules>
+        <module>server-alice</module>
+        <module>server-tom</module>
+        <module>client-bob</module>
+    </modules>
+
+</project>

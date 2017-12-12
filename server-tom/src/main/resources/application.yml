@@ -1,0 +1,11 @@
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:tom-keystore.p12
+    key-store-password: tompassword
+    trust-store: classpath:tom-truststore.jks
+    trust-store-password: tompassword
+    client-auth: need
+security:
+  headers:
+    hsts: NONE
