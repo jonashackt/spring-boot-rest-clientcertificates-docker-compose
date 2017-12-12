@@ -25,6 +25,19 @@ Therefore we use several Spring Boot based microservices that provide different 
 
 For a general approach on how to generate private keys and certificates and create Java Keystores, have a look into https://github.com/jonashackt/spring-boot-rest-clientcertificate#generate-the-usual-key-and-crt---and-import-them-into-needed-keystore-jks-files
 
+# HowTo Use
+
+```
+mvn clean install
+docker-compose up
+```
+
+Open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-Request to /secretservers with Swagger :)
+
+
+# TlDR: How to create multiple keys & certificates for multiple servers - and add these into one truststore / keystore
+
+
 ## server-alice keys and client certificate, truststore & keystore (see /server-alice/src/main/resources)
 
 #### 1. Private Key: aliceprivate.key

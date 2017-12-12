@@ -1,5 +1,6 @@
 package de.jonashackt;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class BobTest {
 	@Autowired
     private RestTemplate restTemplate;
 
+	@Ignore("currently no localhost support, need to implement docker-compose rule for that")
 	@Test
 	public void is_hello_resource_callable_with_client_cert() {
 		String response = restTemplate.getForObject("https://localhost:" + port + "/secretservers", String.class);

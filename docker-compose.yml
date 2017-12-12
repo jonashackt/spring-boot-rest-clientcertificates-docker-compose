@@ -15,8 +15,15 @@ services:
   build: ./server-tom
   ports:
    - "8443"
-  environment:
-    - REGISTRY_HOST=eureka-serviceregistry
+  tty:
+    true
+  restart:
+    unless-stopped
+
+ client-bob:
+  build: ./client-bob
+  ports:
+   - "8080:8080"
   tty:
     true
   restart:
