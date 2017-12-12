@@ -52,7 +52,7 @@ openssl genrsa -des3 -out aliceprivate.key 128
 #### 2. Certificate Signing Request (CSR): alice.csr
 
 ```
-openssl req -new -key aliceprivate.key -out alice.csr
+openssl req -new -key aliceprivate.key -out alice.csr -config alice-csr.conf
 ```
 
 __Common Name__: `server-alice`, which will later be a DNS alias inside the Docker network 
@@ -61,7 +61,7 @@ __Common Name__: `server-alice`, which will later be a DNS alias inside the Dock
 #### 3. self-signed Certificate: alice.crt
 
 ```
-openssl x509 -req -days 3650 -in alice.csr -signkey aliceprivate.key -out alice.crt
+openssl x509 -req -days 3650 -in alice.csr -signkey aliceprivate.key -out alice.crt -extfile alice-csr.conf -extensions v3_req
 ```
 
 
@@ -174,3 +174,16 @@ The result should look like this:
 ![client-keystore](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-keystore.png)
 
 
+
+
+# Links
+
+https://stackoverflow.com/questions/25869428/classpath-resource-not-found-when-running-as-jar
+
+https://www.thomas-krenn.com/de/wiki/Openssl_Multi-Domain_CSR_erstellen
+
+https://stackoverflow.com/questions/30977264/subject-alternative-name-not-present-in-certificate
+
+https://stackoverflow.com/questions/21488845/how-can-i-generate-a-self-signed-certificate-with-subjectaltname-using-openssl
+
+https://serverfault.com/questions/779475/openssl-add-subject-alternate-name-san-when-signing-with-ca
