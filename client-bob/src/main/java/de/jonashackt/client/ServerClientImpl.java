@@ -1,22 +1,33 @@
 package de.jonashackt.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ServerClientImpl implements ServerClient {
 
+    //@Autowired
+    private RestTemplate restTemplate = new RestTemplate();
+
     @Autowired
-    private RestTemplate restTemplate;
+    private HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory;
+
+    @Autowired
+    private HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory;
 
     @Override
     public String callServerAlice() {
+        restTemplate.setRequestFactory(serverAliceClientHttpRequestFactory);
+
         return restTemplate.getForObject("https://server-alice:8443/hello", String.class);
     }
 
     @Override
     public String callServerTom() {
+        restTemplate.setRequestFactory(serverTomClientHttpRequestFactory);
+
         return restTemplate.getForObject("https://server-tom:8443/hello", String.class);
     }
 }

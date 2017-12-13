@@ -43,7 +43,7 @@ Open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-R
 #### 1. Private Key: aliceprivate.key
 
 ```
-openssl genrsa -des3 -out aliceprivate.key 128
+openssl genrsa -des3 -out aliceprivate.key 1024
 ```
 
 - passphrase `alicepassword`
@@ -81,6 +81,12 @@ openssl pkcs12 -export -in alice.crt -inkey aliceprivate.key -certfile alice.crt
 ```
 
 __the same password__ `alicepassword`
+
+To read in KeyStore Explorer
+
+```
+keytool -importkeystore -srckeystore alice-keystore.p12 -srcstoretype pkcs12 -destkeystore alice-keystore.jks -deststoretype JKS
+```
 
 
 
@@ -148,25 +154,11 @@ In KeyStore Explorer this should look like this:
 
 #### 2. Java Keystore, that inherits Public and Private Keys (keypair): client-keystore.p12
 
-Openssl CLI sadly doesn´t support importing multiple certificate files... But we can [concatenate them](https://serverfault.com/a/483490/326340):
+We need a way to import multiple private keys and certificates into the same `client-keystore.jks`, so that our implementation could call multiple secured endpoints. This seems to be a harder task then one could think beforehand. But luckily there´s a simple way: Just copy both `alice-keystore.p12` and `tom-keystore.p12` into __client-bob/src/main/resources__ and use keytool as follows:
 
 ```
-cat alice.crt tom.crt > allcerts.pem
-cat aliceprivate.key tomprivate.key > allkeys.pem
-```
-
-Then we can do:
-
-```
-openssl pkcs12 -export -in allcerts.pem -inkey allkeys.pem -certfile allcerts.pem -name "alicecert" -out client-keystore.p12
-```
-
-__the same password__ `bobpassword`
-
-If you want to check everything worked fine in KeyStoreExplorer, you have to convert the `.p12` file into a `.jks`, otherwise the tool will bring up a nasty exception:
-
-```
-keytool -importkeystore -srckeystore client-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
+keytool -importkeystore -srckeystore alice-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
+keytool -importkeystore -srckeystore tom-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
 ```
 
 The result should look like this:
@@ -189,3 +181,9 @@ https://stackoverflow.com/questions/21488845/how-can-i-generate-a-self-signed-ce
 --> this is not the only solution, see `-extfile` and `-extensions` CLI paramters!
 
 https://serverfault.com/questions/779475/openssl-add-subject-alternate-name-san-when-signing-with-ca
+
+#### Multiple certificates handling in Java Keystores: 
+
+Look into the documentation of Tomcat in section `keyAlias`: http://tomcat.apache.org/tomcat-6.0-doc/config/http.html#SSL_Support
+
+https://stackoverflow.com/questions/5292074/how-to-specify-outbound-certificate-alias-for-https-calls
