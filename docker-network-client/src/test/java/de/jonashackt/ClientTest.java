@@ -21,7 +21,7 @@ public class ClientTest {
 			.file("../docker-compose.yml")
 			.waitingForService("server-alice", HealthChecks.toHaveAllPortsOpen())
 			.waitingForService("server-tom", HealthChecks.toHaveAllPortsOpen())
-			.waitingForService("client-bob",  HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat("http://localhost:8080/swagger-ui.html")))
+			.waitingForService("client-bob",  HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/swagger-ui.html")))
 			.build();
 
 	@Test
