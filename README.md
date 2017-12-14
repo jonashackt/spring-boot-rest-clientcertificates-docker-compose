@@ -44,10 +44,29 @@ Only, if you want to check manually, you can do a `docker-compose up -d` and ope
 
 As client-bob only has access to the DNS aliases `server-alice` and `server-tom`, if it itself is part of the Docker (Compose) network and these aliases are used to access both client certificate secured endpoints, we need another way to run an Integration test inside the Docker network scope.
 
-Therefore we use the [docker-compose-rule](https://github.com/palantir/docker-compose-rule) and the __docker-network-client__ that just calls client-bob inside the Docker network.
+Therefore we use the [docker-compose-rule](https://github.com/palantir/docker-compose-rule) and the __docker-network-client__ that just calls __client-bob__ inside the Docker network.
 
-docker-compose-rule needs a special Maven repository to be added, because it is only served on Bintray.
+docker-compose-rule needs a special Maven repository to be added in `docker-network-client`, because it is only served on Bintray.
 
+```
+		<dependency>
+			<groupId>com.palantir.docker.compose</groupId>
+			<artifactId>docker-compose-rule-junit4</artifactId>
+			<version>${docker-compose-rule-junit4.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>bintray</id>
+			<name>Bintray Maven Repository - as docker-compose-rule-junit4 is only available there</name>
+			<url>https://dl.bintray.com/palantir/releases</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+```
 
 # TlDR: How to create multiple keys & certificates for multiple servers - and add these into appropriate truststores / keystores
 

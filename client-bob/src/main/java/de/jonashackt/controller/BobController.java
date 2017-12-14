@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BobController {
 
-    public static final String RESPONSE = "Hello Rest-User, here´s Alice!";
-
     @Autowired
     private ServerClient serverClient;
 

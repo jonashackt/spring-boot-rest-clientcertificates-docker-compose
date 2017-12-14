@@ -25,7 +25,7 @@ public class BobTest {
 	@Autowired
     private RestTemplate restTemplate;
 
-	@Ignore("currently no localhost support, need to implement docker-compose rule for that")
+	@Ignore("no localhost support, because without Docker we would need to bind the same Port 8443 of server-alice and server-tom two times, which isn´t possible")
 	@Test
 	public void is_hello_resource_callable_with_client_cert() {
 		String response = restTemplate.getForObject("https://localhost:" + port + "/secretservers", String.class);

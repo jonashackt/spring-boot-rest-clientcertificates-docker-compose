@@ -1,7 +1,7 @@
 package de.jonashackt.client;
 
 public interface ServerClient {
-    public String callServerAlice();
+    String callServerAlice();
 
-    public String callServerTom();
+    String callServerTom();
 }
