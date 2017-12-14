@@ -8,14 +8,13 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class ServerClientImpl implements ServerClient {
 
-    //@Autowired
-    private RestTemplate restTemplate = new RestTemplate();
-
     @Autowired
     private HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory;
 
     @Autowired
     private HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory;
+
+    private RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public String callServerAlice() {

@@ -5,12 +5,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -20,49 +18,24 @@ import java.io.IOException;
 public class RestClientCertConfiguration {
 
     private char[] bobPassword = "bobpassword".toCharArray();
+    private char[] tomPassword = "tompassword".toCharArray();
 
     @Value("classpath:alice-keystore.p12")
     private Resource aliceKeystoreResource;
 
-    @Value("classpath:alice-truststore.jks")
-    private Resource aliceTruststoreResource;
-
     @Value("classpath:tom-keystore.p12")
     private Resource tomKeystoreResource;
 
-    @Value("classpath:tom-truststore.jks")
-    private Resource tomTruststoreResource;
-
     @Value("classpath:client-truststore.jks")
     private Resource truststoreResource;
-
-/*    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) throws Exception {
-
-
-
-        SSLContext sslContext = SSLContextBuilder
-                .create()
-                .loadKeyMaterial(inStream2File(aliceKeystoreResource), "alicepassword".toCharArray(), "alicepassword".toCharArray())
-                .loadKeyMaterial(inStream2File(tomKeystoreResource), "tompassword".toCharArray(), "tompassword".toCharArray())
-                .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
-                .build();
-
-        HttpClient client = HttpClients.custom()
-                .setSSLContext(sslContext)
-                .build();
-
-        return builder
-                .requestFactory(new HttpComponentsClientHttpRequestFactory(client))
-                .build();
-    }*/
+    private char[] alicePassword = "alicepassword".toCharArray();
 
     @Bean
     public HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory() throws Exception {
         SSLContext sslContext = SSLContextBuilder
                 .create()
-                .loadKeyMaterial(inStream2File(tomKeystoreResource), "tompassword".toCharArray(), "tompassword".toCharArray())
-                .loadTrustMaterial(inStream2File(tomTruststoreResource), "tompassword".toCharArray())
+                .loadKeyMaterial(inStream2File(tomKeystoreResource), tomPassword, tomPassword)
+                .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
                 .build();
 
         HttpClient client = HttpClients.custom()
@@ -76,8 +49,8 @@ public class RestClientCertConfiguration {
     public HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory() throws Exception {
         SSLContext sslContext = SSLContextBuilder
                 .create()
-                .loadKeyMaterial(inStream2File(aliceKeystoreResource), "alicepassword".toCharArray(), "alicepassword".toCharArray())
-                .loadTrustMaterial(inStream2File(aliceTruststoreResource), "alicepassword".toCharArray())
+                .loadKeyMaterial(inStream2File(aliceKeystoreResource), alicePassword, alicePassword)
+                .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
                 .build();
 
         HttpClient client = HttpClients.custom()

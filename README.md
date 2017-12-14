@@ -152,19 +152,117 @@ In KeyStore Explorer this should look like this:
 ![client-truststore](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-truststore.png)
 
 
-#### 2. Java Keystore, that inherits Public and Private Keys (keypair): client-keystore.p12
+#### 2. Java Keystores, that inherit Public and Private Keys (keypair): copy alice-keystore.p12 & tom-keystore.p12
 
-We need a way to import multiple private keys and certificates into the same `client-keystore.jks`, so that our implementation could call multiple secured endpoints. This seems to be a harder task then one could think beforehand. But luckily there´s a simple way: Just copy both `alice-keystore.p12` and `tom-keystore.p12` into __client-bob/src/main/resources__ and use keytool as follows:
+As Apache HttpClient isn´t able to handle [more than one client certificate for the same SSLContext](http://mail-archives.apache.org/mod_mbox/hc-httpclient-users/201109.mbox/%3C1315998630.3176.17.camel@ubuntu%3E), we need to provide two of them. Therefore we don´t need to add two private keys and certificates to one Keystore - we can just use both Keystores we already assembled before. So we copy `alice-keystore.p12` & `tom-keystore.p12` to clien-bob/src/main/resources and use them in the [RestClientCertConfiguration](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-bob/src/main/java/de/jonashackt/configuration/RestClientCertConfiguration.java) like this:
 
 ```
-keytool -importkeystore -srckeystore alice-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
-keytool -importkeystore -srckeystore tom-keystore.p12 -srcstoretype pkcs12 -destkeystore client-keystore.jks -deststoretype JKS
+import org.apache.commons.io.FileUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.IOException;
+
+@Configuration
+public class RestClientCertConfiguration {
+
+    private char[] bobPassword = "bobpassword".toCharArray();
+    private char[] tomPassword = "tompassword".toCharArray();
+
+    @Value("classpath:alice-keystore.p12")
+    private Resource aliceKeystoreResource;
+
+    @Value("classpath:tom-keystore.p12")
+    private Resource tomKeystoreResource;
+
+    @Value("classpath:client-truststore.jks")
+    private Resource truststoreResource;
+    private char[] alicePassword = "alicepassword".toCharArray();
+
+    @Bean
+    public HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory() throws Exception {
+        SSLContext sslContext = SSLContextBuilder
+                .create()
+                .loadKeyMaterial(inStream2File(tomKeystoreResource), tomPassword, tomPassword)
+                .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
+                .build();
+
+        HttpClient client = HttpClients.custom()
+                .setSSLContext(sslContext)
+                .build();
+
+        return new HttpComponentsClientHttpRequestFactory(client);
+    }
+
+    @Bean
+    public HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory() throws Exception {
+        SSLContext sslContext = SSLContextBuilder
+                .create()
+                .loadKeyMaterial(inStream2File(aliceKeystoreResource), alicePassword, alicePassword)
+                .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
+                .build();
+
+        HttpClient client = HttpClients.custom()
+                .setSSLContext(sslContext)
+                .build();
+
+        return new HttpComponentsClientHttpRequestFactory(client);
+    }
+
+    private File inStream2File(Resource resource) {
+        try {
+            File tempFile = File.createTempFile("file", ".tmp");
+            FileUtils.copyInputStreamToFile(resource.getInputStream(), tempFile);
+            return tempFile;
+        } catch (IOException e) {
+            throw new RuntimeException("Problems loading Keystores", e);
+        }
+    }
+}
 ```
 
-The result should look like this:
+Now we´re able to insert individual SSLContexts into Spring´s RestTemplate. Therefore see [ServerClientImpl](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-bob/src/main/java/de/jonashackt/client/ServerClientImpl.java):
 
-![client-keystore](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/blob/master/client-keystore.png)
+```
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+@Component
+public class ServerClientImpl implements ServerClient {
+
+    @Autowired
+    private HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory;
+
+    @Autowired
+    private HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory;
+
+    private RestTemplate restTemplate = new RestTemplate();
+
+    @Override
+    public String callServerAlice() {
+        restTemplate.setRequestFactory(serverAliceClientHttpRequestFactory);
+
+        return restTemplate.getForObject("https://server-alice:8443/hello", String.class);
+    }
+
+    @Override
+    public String callServerTom() {
+        restTemplate.setRequestFactory(serverTomClientHttpRequestFactory);
+
+        return restTemplate.getForObject("https://server-tom:8443/hello", String.class);
+    }
+}
+```
 
 
 
