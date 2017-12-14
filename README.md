@@ -1,4 +1,4 @@
-REST Client uses clientcertificate to authenticate to Spring Boot Server
+Spring RestTemplate calls multiple servers that are secured with multiple client certificate - setup with Docker Compose & Tested with docker-compose-rule
 =============================
 [![Build Status](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose.svg?branch=master)](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose)
 
@@ -9,20 +9,20 @@ In contrast the present project focusses on the configuration of more than one c
 Therefore we use several Spring Boot based microservices that provide different client certificate secured REST endpoint and a separate microservice that accesses these services:
 
 ```
-                 -------------------------------------------
-                | Docker Network scope                      |
-                |                         ================  |
-                |                         =              =  |
-                |                         = server-alice =  |
-============    |   ==============        =              =  |
-=  docker- =    |   =            = -----> ================  |
-= network- = -----> = client-bob =                          |
-=  client  =    |   =            = -----> ================  |
-============    |   ==============        =              =  |
-                |                         =  server-tom  =  |
-                |                         =              =  |
-                |                         ================  |
-                 -------------------------------------------
+                  -------------------------------------------    
+                 | Docker Network scope                 __   |  
+                 |                         ============|o¬|  |  
+                 |                         =            ¯¯=  |   
+                 |                         = server-alice =  |
+ ============    |   ==============   ssl  =              =  |
+ =  docker- =    |   =            = -----> ================  |
+ = network- = -----> = client-bob =                     __   |
+ =  client  =    |   =   __   __  = -----> ============|o¬|  |
+ ============    |   ===|o¬|=|o¬|==   ssl  =            ¯¯=  |
+                 |       ¯¯   ¯¯           =  server-tom  =  |
+                 |                         =              =  |
+                 |                         ================  |
+                  -------------------------------------------
                  
 ```
 
@@ -49,7 +49,7 @@ Therefore we use the [docker-compose-rule](https://github.com/palantir/docker-co
 docker-compose-rule needs a special Maven repository to be added, because it is only served on Bintray.
 
 
-# TlDR: How to create multiple keys & certificates for multiple servers - and add these into one truststore / keystore
+# TlDR: How to create multiple keys & certificates for multiple servers - and add these into appropriate truststores / keystores
 
 
 ## server-alice keys and client certificate, truststore & keystore (see /server-alice/src/main/resources)
