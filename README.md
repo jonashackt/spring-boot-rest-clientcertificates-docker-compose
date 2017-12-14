@@ -9,17 +9,21 @@ In contrast the present project focusses on the configuration of more than one c
 Therefore we use several Spring Boot based microservices that provide different client certificate secured REST endpoint and a separate microservice that accesses these services:
 
 ```
-                                   ================
-                                   =              =
-                                   = server-alice =
-==============                     =              =
-=            = ------------------> ================
-= client-bob =                     
-=            = ------------------> ================
-==============                     =              =
-                                   =  server-tom  =
-                                   =              =
-                                   ================
+                 -------------------------------------------
+                | Docker Network scope                      |
+                |                         ================  |
+                |                         =              =  |
+                |                         = server-alice =  |
+============    |   ==============        =              =  |
+=  docker- =    |   =            = -----> ================  |
+= network- = -----> = client-bob =                          |
+=  client  =    |   =            = -----> ================  |
+============    |   ==============        =              =  |
+                |                         =  server-tom  =  |
+                |                         =              =  |
+                |                         ================  |
+                 -------------------------------------------
+                 
 ```
 
 
@@ -27,12 +31,22 @@ For a general approach on how to generate private keys and certificates and crea
 
 # HowTo Use
 
+Everything you need to run a full build and __complete__ test (incl. Integrationtest of docker-network-client firing up all three microservices that´ll call each other with client certificate support) is this:
+
 ```
 mvn clean install
-docker-compose up
 ```
 
-Open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-Request to /secretservers with Swagger :)
+Only, if you want to check manually, you can do a `docker-compose up -d` and open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-Request to /secretservers with Swagger :)
+
+
+# Integrationtesting
+
+As client-bob only has access to the DNS aliases `server-alice` and `server-tom`, if it itself is part of the Docker (Compose) network and these aliases are used to access both client certificate secured endpoints, we need another way to run an Integration test inside the Docker network scope.
+
+Therefore we use the [docker-compose-rule](https://github.com/palantir/docker-compose-rule) and the __docker-network-client__ that just calls client-bob inside the Docker network.
+
+docker-compose-rule needs a special Maven repository to be added, because it is only served on Bintray.
 
 
 # TlDR: How to create multiple keys & certificates for multiple servers - and add these into one truststore / keystore
@@ -285,3 +299,5 @@ https://serverfault.com/questions/779475/openssl-add-subject-alternate-name-san-
 Look into the documentation of Tomcat in section `keyAlias`: http://tomcat.apache.org/tomcat-6.0-doc/config/http.html#SSL_Support
 
 https://stackoverflow.com/questions/5292074/how-to-specify-outbound-certificate-alias-for-https-calls
+
+https://stackoverflow.com/questions/6370745/can-we-load-multiple-certificates-keys-in-a-key-store

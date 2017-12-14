@@ -25,6 +25,7 @@
         <module>server-alice</module>
         <module>server-tom</module>
         <module>client-bob</module>
+        <module>docker-network-client</module>
     </modules>
 
 </project>
