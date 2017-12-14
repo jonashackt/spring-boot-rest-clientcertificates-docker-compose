@@ -19,6 +19,7 @@ public class RestClientCertConfiguration {
 
     private char[] bobPassword = "bobpassword".toCharArray();
     private char[] tomPassword = "tompassword".toCharArray();
+    private char[] alicePassword = "alicepassword".toCharArray();
 
     @Value("classpath:alice-keystore.p12")
     private Resource aliceKeystoreResource;
@@ -28,38 +29,31 @@ public class RestClientCertConfiguration {
 
     @Value("classpath:client-truststore.jks")
     private Resource truststoreResource;
-    private char[] alicePassword = "alicepassword".toCharArray();
 
     @Bean
-    public HttpComponentsClientHttpRequestFactory serverTomClientHttpRequestFactory() throws Exception {
-        SSLContext sslContext = SSLContextBuilder
+    public SSLContext serverTomSSLContext() throws Exception {
+        return SSLContextBuilder
                 .create()
                 .loadKeyMaterial(inStream2File(tomKeystoreResource), tomPassword, tomPassword)
                 .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
                 .build();
-
-        HttpClient client = HttpClients.custom()
-                .setSSLContext(sslContext)
-                .build();
-
-        return new HttpComponentsClientHttpRequestFactory(client);
     }
 
     @Bean
-    public HttpComponentsClientHttpRequestFactory serverAliceClientHttpRequestFactory() throws Exception {
-        SSLContext sslContext = SSLContextBuilder
+    public SSLContext serverAliceSSLContext() throws Exception {
+        return SSLContextBuilder
                 .create()
                 .loadKeyMaterial(inStream2File(aliceKeystoreResource), alicePassword, alicePassword)
                 .loadTrustMaterial(inStream2File(truststoreResource), bobPassword)
                 .build();
-
-        HttpClient client = HttpClients.custom()
-                .setSSLContext(sslContext)
-                .build();
-
-        return new HttpComponentsClientHttpRequestFactory(client);
     }
 
+
+    /**
+     * The ugly need to generate a File from a InputStream - because SSLContextBuild.loadKeyMaterial only accepts File,
+     * but retrieving Files from within Spring Boot Fatjars is only possible through Resources ->
+     * see https://stackoverflow.com/questions/25869428/classpath-resource-not-found-when-running-as-jar
+     */
     private File inStream2File(Resource resource) {
         try {
             File tempFile = File.createTempFile("file", ".tmp");
