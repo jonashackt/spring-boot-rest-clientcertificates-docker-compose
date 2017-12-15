@@ -40,7 +40,7 @@ mvn clean install
 Only, if you want to check manually, you can do a `docker-compose up -d` and open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-Request to /secretservers with Swagger :)
 
 
-# Integrationtesting
+# Integrationtesting with [docker-compose-rule](https://github.com/palantir/docker-compose-rule)
 
 As client-bob only has access to the DNS aliases `server-alice` and `server-tom`, if it itself is part of the Docker (Compose) network and these aliases are used to access both client certificate secured endpoints, we need another way to run an Integration test inside the Docker network scope.
 
@@ -66,6 +66,49 @@ docker-compose-rule needs a special Maven repository to be added in `docker-netw
 			<layout>default</layout>
 		</repository>
 	</repositories>
+```
+
+And the code you need, to fire up all Docker Compose services / Docker Containers is really simple:
+
+```
+package de.jonashackt;
+
+import com.palantir.docker.compose.DockerComposeRule;
+import com.palantir.docker.compose.connection.waiting.HealthChecks;
+import org.apache.http.HttpStatus;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.containsString;
+
+@RunWith(SpringRunner.class)
+@ContextConfiguration()
+public class ClientTest {
+
+	@ClassRule
+	public static DockerComposeRule docker = DockerComposeRule.builder()
+			.file("../docker-compose.yml")
+			.waitingForService("server-alice", HealthChecks.toHaveAllPortsOpen())
+			.waitingForService("server-tom", HealthChecks.toHaveAllPortsOpen())
+			.waitingForService("client-bob",  HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/swagger-ui.html")))
+			.build();
+
+	@Test
+	public void is_client_bob_able_to_call_all_servers_with_client_certs() {
+
+		when()
+			.get("http://localhost:8080/secretservers")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.assertThat()
+				.body(containsString("Both Servers called - Alice said 'Alice answering!' & Tom replied 'Tom answering!'."));
+	}
+}
+
 ```
 
 # TlDR: How to create multiple keys & certificates for multiple servers - and add these into appropriate truststores / keystores
