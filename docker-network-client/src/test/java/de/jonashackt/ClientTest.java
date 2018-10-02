@@ -1,13 +1,15 @@
 package de.jonashackt;
 
-import com.palantir.docker.compose.DockerComposeRule;
-import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+
+import java.io.File;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
@@ -17,12 +19,11 @@ import static org.hamcrest.Matchers.containsString;
 public class ClientTest {
 
 	@ClassRule
-	public static DockerComposeRule docker = DockerComposeRule.builder()
-			.file("../docker-compose.yml")
-			.waitingForService("server-alice", HealthChecks.toHaveAllPortsOpen())
-			.waitingForService("server-tom", HealthChecks.toHaveAllPortsOpen())
-			.waitingForService("client-bob",  HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/swagger-ui.html")))
-			.build();
+	public static DockerComposeContainer services =
+			new DockerComposeContainer(new File("../docker-compose.yml"))
+					.withExposedService("server-alice", 8443,Wait.forListeningPort())
+					.withExposedService("server-tom", 8443, Wait.forListeningPort())
+					.withExposedService("client-bob", 8080, Wait.forHttp("/swagger-ui.html").forStatusCode(200)).withLocalCompose(true);
 
 	@Test
 	public void is_client_bob_able_to_call_all_servers_with_client_certs() {

@@ -1,4 +1,4 @@
-Spring RestTemplate calls multiple servers that are secured with multiple client certificate - setup with Docker Compose & Tested with docker-compose-rule
+Multiple Spring Boot servers that are secured with different client certificates - called by RestTemplate
 =============================
 [![Build Status](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose.svg?branch=master)](https://travis-ci.org/jonashackt/spring-boot-rest-clientcertificates-docker-compose)
 
@@ -40,32 +40,21 @@ mvn clean install
 Only, if you want to check manually, you can do a `docker-compose up -d` and open your Browser with [http:localhost:8080/swagger-ui.html] and fire up a GET-Request to /secretservers with Swagger :)
 
 
-# Integrationtesting with [docker-compose-rule](https://github.com/palantir/docker-compose-rule)
+# Integrationtesting with [testcontainers](https://www.testcontainers.org)
 
 As client-bob only has access to the DNS aliases `server-alice` and `server-tom`, if it itself is part of the Docker (Compose) network and these aliases are used to access both client certificate secured endpoints, we need another way to run an Integration test inside the Docker network scope.
 
-Therefore we use the [docker-compose-rule](https://github.com/palantir/docker-compose-rule) and the __docker-network-client__ that just calls __client-bob__ inside the Docker network.
+Therefore we use the [testcontainers](https://www.testcontainers.org) and the __docker-network-client__ that just calls __client-bob__ inside the Docker network.
 
-docker-compose-rule needs a special Maven repository to be added in `docker-network-client`, because it is only served on Bintray.
+testcontainers could be []simply integrated by via Maven](https://www.testcontainers.org/usage.html#maven-dependencies):
 
 ```
 		<dependency>
-			<groupId>com.palantir.docker.compose</groupId>
-			<artifactId>docker-compose-rule-junit4</artifactId>
-			<version>${docker-compose-rule-junit4.version}</version>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>NewestTestcontainersVersionOnMavenCentral</version>
 			<scope>test</scope>
 		</dependency>
-
-	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>bintray</id>
-			<name>Bintray Maven Repository - as docker-compose-rule-junit4 is only available there</name>
-			<url>https://dl.bintray.com/palantir/releases</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
 ```
 
 And the code you need, to fire up all Docker Compose services / Docker Containers is really simple:
@@ -73,14 +62,16 @@ And the code you need, to fire up all Docker Compose services / Docker Container
 ```
 package de.jonashackt;
 
-import com.palantir.docker.compose.DockerComposeRule;
-import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.apache.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+
+import java.io.File;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
@@ -90,12 +81,12 @@ import static org.hamcrest.Matchers.containsString;
 public class ClientTest {
 
 	@ClassRule
-	public static DockerComposeRule docker = DockerComposeRule.builder()
-			.file("../docker-compose.yml")
-			.waitingForService("server-alice", HealthChecks.toHaveAllPortsOpen())
-			.waitingForService("server-tom", HealthChecks.toHaveAllPortsOpen())
-			.waitingForService("client-bob",  HealthChecks.toRespondOverHttp(8080, (port) -> port.inFormat("http://$HOST:$EXTERNAL_PORT/swagger-ui.html")))
-			.build();
+	public static DockerComposeContainer services =
+			new DockerComposeContainer(new File("../docker-compose.yml"))
+					.withExposedService("server-alice", 8443,Wait.forListeningPort())
+					.withExposedService("server-tom", 8443, Wait.forListeningPort())
+					.withExposedService("client-bob", 8080, Wait.forHttp("/swagger-ui.html").forStatusCode(200)).withLocalCompose(true);
+
 
 	@Test
 	public void is_client_bob_able_to_call_all_servers_with_client_certs() {
