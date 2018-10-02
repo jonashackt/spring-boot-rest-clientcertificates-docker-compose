@@ -23,7 +23,7 @@ public class ClientTest {
 			new DockerComposeContainer(new File("../docker-compose.yml"))
 					.withExposedService("server-alice", 8443,Wait.forListeningPort())
 					.withExposedService("server-tom", 8443, Wait.forListeningPort())
-					.withExposedService("client-bob", 8080, Wait.forHttp("/swagger-ui.html").forStatusCode(200)).withLocalCompose(true);
+					.withExposedService("client-bob", 8080, Wait.forHttp("/swagger-ui.html").forStatusCode(200));
 
 	@Test
 	public void is_client_bob_able_to_call_all_servers_with_client_certs() {
