@@ -54,6 +54,7 @@ public class RestClientCertConfiguration {
     private File inStream2File(Resource resource) {
         try {
             File tempFile = File.createTempFile("file", ".tmp");
+            tempFile.deleteOnExit();
             FileUtils.copyInputStreamToFile(resource.getInputStream(), tempFile);
             return tempFile;
         } catch (IOException e) {
