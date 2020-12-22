@@ -1,5 +1,6 @@
 Multiple Spring Boot servers that are secured with different client certificates - called by RestTemplate
 =============================
+[![Build Status](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/workflows/github/badge.svg)](https://github.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose/actions)
 [![Build Status](https://travis-ci.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose.svg?branch=master)](https://travis-ci.com/jonashackt/spring-boot-rest-clientcertificates-docker-compose)
 [![renovateenabled](https://img.shields.io/badge/renovate-enabled-yellow)](https://renovatebot.com)
 
