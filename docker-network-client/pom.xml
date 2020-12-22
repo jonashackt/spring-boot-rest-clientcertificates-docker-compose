@@ -47,6 +47,15 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Needed to run TestContainers in using the DockerCompose module https://www.testcontainers.org/modules/docker_compose/
+		but together with a Spring Boot 2.4.x based project, which uses JUnit 5 - but Testcontainers ClassRule for Docker Compose
+		is bound to Junit4 currently -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>
