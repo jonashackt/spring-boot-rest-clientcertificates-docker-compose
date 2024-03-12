@@ -16,7 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
+		<springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
 	</properties>
 
 	<dependencies>
